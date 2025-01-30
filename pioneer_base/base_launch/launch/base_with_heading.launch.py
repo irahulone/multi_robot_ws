@@ -55,12 +55,32 @@ def generate_launch_description():
         parameters=[{"rover_id": "p5"}]
     )
 
+    heading_decoder_p2 = Node(
+        package="controller",
+        executable="heading_decoder",
+        parameters=[{"rover_id": "p2"}]
+    )
+    heading_decoder_p3 = Node(
+        package="controller",
+        executable="heading_decoder",
+        parameters=[{"rover_id": "p3"}]
+    )
+    heading_decoder_p5 = Node(
+        package="controller",
+        executable="heading_decoder",
+        parameters=[{"rover_id": "p5"}]
+    )
+
     ld.add_action(run_joy_node)
     ld.add_action(joy_to_cmd_vel)
     ld.add_action(demux)
     ld.add_action(heading_controller_p2)
     ld.add_action(heading_controller_p3)
     ld.add_action(heading_controller_p5)
+    ld.add_action(heading_decoder_p2)
+    ld.add_action(heading_decoder_p3)
+    ld.add_action(heading_decoder_p5)
+
 
     return ld
 
