@@ -58,6 +58,8 @@ class Demux(Node):
 
         self.broadcast = False
 
+        self.hardware = True
+
         self.pubsub = PubSubManager(self)
         self.pubsub.create_subscription(
             Twist,
@@ -79,6 +81,12 @@ class Demux(Node):
             '/joy/broadcast',
             self.broadcast_callback,
             1)
+        self.pubsub.create_subscription(
+            Bool,
+            '/joy/hardware',
+            self.hw_sim_callback,
+            1)
+        
         for i in range(self.n_rover):
             self.pubsub.create_publisher(Twist, f'{self.block}/{self.robot_id_list[i]}/cmd_vel', 5)
             self.pubsub.create_publisher(Bool, f'{self.block}/{self.robot_id_list[i]}/enable', 5)
@@ -96,6 +104,8 @@ class Demux(Node):
                 '/joy/angle_sel',
                 self.angle_sel_callback,
                 5)
+        self.pubsub.create_publisher(Twist, '/sim/cmd_vel', 10)
+        self.pubsub.create_publisher(Bool, '/sim/enable', 10)
         
     
     def joy_cmd_callback(self, msg):
@@ -104,6 +114,9 @@ class Demux(Node):
 
     def broadcast_callback(self, msg):
         self.broadcast = msg.data
+
+    def hw_sim_callback(self, msg):
+        self.hardware = msg.data
     
     def sel_callback(self, msg):
         self.select = msg.data
@@ -118,19 +131,27 @@ class Demux(Node):
         empty_twist.angular.z = 0.0
         false_state.data = False
 
+        en_state.data = True
+        val.linear.x = self.lx
+        val.angular.z = self.az
+
+        # Sim
+        if not self.hardware:
+            self.pubsub.publish(f'/sim/cmd_vel', val)
+            self.pubsub.publish(f'/sim/enable', en_state)
+        
         for i in range(self.n_rover):
-            if self.broadcast:
+            if not self.hardware:
+                self.pubsub.publish(f'{self.block}/{self.robot_id_list[i]}/cmd_vel', empty_twist)
+                self.pubsub.publish(f'{self.block}/{self.robot_id_list[i]}/enable', false_state)
+            elif self.broadcast:
                 en_state.data = True
-                val.linear.x = self.lx
-                val.angular.z = self.az
                 if self.heading_controller:
                     val.angular.z = self.angular_vel[i]
                 self.pubsub.publish(f'{self.block}/{self.robot_id_list[i]}/cmd_vel', val)
                 self.pubsub.publish(f'{self.block}/{self.robot_id_list[i]}/enable', en_state)
             elif _en and self.select == i+1:
                 en_state.data = True
-                val.linear.x = self.lx
-                val.angular.z = self.az
                 if self.heading_controller:
                     val.angular.z = self.angular_vel[i]
                 self.pubsub.publish(f'{self.block}/{self.robot_id_list[i]}/cmd_vel', val)

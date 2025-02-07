@@ -20,8 +20,9 @@ class JoyCmd(JoyBase):
                 ('az', "RX"),
                 ('en', "LB"),
                 ('rover_sel', "Y"),
-                ('mode_sel', "B"),
+                ('mode_sel', "X"),
                 ('angle_sel', "A"),
+                ('hardware_sim_sel', "B"),
                 ('broadcast', "RB"),
                 ('revolution', "cross_lr"),
                 ('prismatic', "cross_ud"),
@@ -35,6 +36,7 @@ class JoyCmd(JoyBase):
         self.rover_sel_button = self.button_dict.get(self.get_parameter('rover_sel').value)
         self.mode_sel_button = self.button_dict.get(self.get_parameter('mode_sel').value)
         self.angle_sel_button = self.button_dict.get(self.get_parameter('angle_sel').value)
+        self.hw_sel_button = self.button_dict.get(self.get_parameter('hardware_sim_sel').value)
         self.broadcast_button = self.button_dict.get(self.get_parameter('broadcast').value)
         self.N_ROVER = self.get_parameter('n_rover').value
 
@@ -46,9 +48,12 @@ class JoyCmd(JoyBase):
 
         self.selected_angle = 0
 
+        self.hw_sel = True
+
         self.pubsub.create_publisher(Twist, '/joy/cmd_vel', 5)
         self.pubsub.create_publisher(Bool, '/joy/enable', 5)
         self.pubsub.create_publisher(Bool, '/joy/broadcast', 1)
+        self.pubsub.create_publisher(Bool, '/joy/hardware', 1)
         
         self.pubsub.create_publisher(Int16, '/select_rover', 1)
         self.pubsub.create_publisher(String, '/modeC', 1)
@@ -67,6 +72,7 @@ class JoyCmd(JoyBase):
             rover_sel: {self.get_parameter('rover_sel').value},\n \
             mode_sel: {self.get_parameter('mode_sel').value},\n \
             angle_sel: {self.get_parameter('angle_sel').value},\n \
+            hardware_sel: {self.get_parameter('hardware_sim_sel').value},\n \
             broadcast: {self.get_parameter('broadcast').value},\n \
             revolution: {self.get_parameter('revolution').value},\n \
             prismatic: {self.get_parameter('prismatic').value}\n"
@@ -92,6 +98,10 @@ class JoyCmd(JoyBase):
         if _toggle[self.rover_sel_button] == 1:
             self.select = self.select%self.N_ROVER + 1
             self.get_logger().info(f"Sel Button Toggled: {self.select}")
+
+        if _toggle[self.hw_sel_button] == 1:
+            self.hw_sel = not self.hw_sel
+            self.get_logger().info(f"HW/Sim Button Toggled: {"HW" if self.hw_sel else "Sim"}")
 
         if _toggle[self.mode_sel_button] == 1:
             self.get_logger().info(f"Mode Button Toggled: {self.rover_modeC} to {self.mode_list[(self.mode_dict[self.rover_modeC] + 1) % 3]}")
@@ -132,7 +142,11 @@ class JoyCmd(JoyBase):
 
         mode_msg = String()
         mode_msg.data = self.rover_modeC
-        self.pubsub.publish('/modeC', mode_msg)         
+        self.pubsub.publish('/modeC', mode_msg)   
+
+        hardware_msg = Bool()
+        hardware_msg.data = self.hw_sel
+        self.pubsub.publish('/joy/hardware', hardware_msg)      
 
 
 def main(args=None):
