@@ -30,7 +30,8 @@ class HeadingController(Node):
 
         self.desired_heading = 0
         self.actual_heading = 0
-        self.k = 0.05
+        self.k = 0.01
+        self.RANGE = 1.0
 
         self.pubsub = PubSubManager(self)
         self.pubsub.create_subscription(
@@ -48,6 +49,9 @@ class HeadingController(Node):
             f'/heading/{self.target_rover}/anglar_vel',
             5)
         
+        self.timer_peroiod = 1.0
+        self.timer = self.create_timer(self.timer_peroiod, self.timer_callback)
+        
     def heading_callback(self, msg):
         heading = msg.data
         self.get_logger().info(f"{self.target_rover}/ Received heading: {heading}")
@@ -57,12 +61,14 @@ class HeadingController(Node):
         angle = msg.data
         self.get_logger().info(f"{self.target_rover}/ Received desired heading: {angle}")
         self.desired_heading = angle
+    
+    def timer_callback(self):
         if self.actual_heading is None:
             return
         
         e = (self.desired_heading - self.actual_heading +180) % 360 - 180
         vel = Twist()
-        vel.angular.z = self.k * e
+        vel.angular.z = max(-self.RANGE, min(self.k * e, self.RANGE))
         vel.linear.x = 0.0
         self.pubsub.publish(f'/heading/{self.target_rover}/anglar_vel', vel)
         self.get_logger().info(f"{self.target_rover}/ Send angular vel: {vel.angular.z}")

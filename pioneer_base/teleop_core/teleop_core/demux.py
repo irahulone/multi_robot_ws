@@ -85,11 +85,14 @@ class Demux(Node):
             '/joy/hardware',
             self.hw_sim_callback,
             1)
+<<<<<<< HEAD
         self.pubsub.create_subscription(
             String,
             '/modeC',
             self.mode_callback,
             1)
+=======
+>>>>>>> origin/neo
         
         for i in range(self.n_rover):
             self.pubsub.create_publisher(Twist, f'{self.block}/{self.robot_id_list[i]}/cmd_vel', 5)
@@ -108,6 +111,8 @@ class Demux(Node):
                 '/joy/angle_sel',
                 self.angle_sel_callback,
                 5)
+        self.pubsub.create_publisher(Twist, '/sim/cmd_vel', 10)
+        self.pubsub.create_publisher(Bool, '/sim/enable', 10)
         
     
     def joy_cmd_callback(self, msg):
@@ -138,14 +143,35 @@ class Demux(Node):
         val.angular.z = self.az
         namespace = self.block if self.hardware else "/sim"
 
+        en_state.data = True
+        val.linear.x = self.lx
+        val.angular.z = self.az
+
+        # Sim
+        if not self.hardware:
+            self.pubsub.publish(f'/sim/cmd_vel', val)
+            self.pubsub.publish(f'/sim/enable', en_state)
+        
         for i in range(self.n_rover):
+<<<<<<< HEAD
             if self.mode == "NEU_M" or self.mode == "NAV_M":
                 self.pubsub.publish(f'{namespace}/{self.robot_id_list[i]}/cmd_vel', empty_twist)
             elif self.broadcast:
+=======
+            if not self.hardware:
+                self.pubsub.publish(f'{self.block}/{self.robot_id_list[i]}/cmd_vel', empty_twist)
+                self.pubsub.publish(f'{self.block}/{self.robot_id_list[i]}/enable', false_state)
+            elif self.broadcast:
+                en_state.data = True
+>>>>>>> origin/neo
                 if self.heading_controller:
                     val.angular.z = self.angular_vel[i]
                 self.pubsub.publish(f'{namespace}/{self.robot_id_list[i]}/cmd_vel', val)
             elif _en and self.select == i+1:
+<<<<<<< HEAD
+=======
+                en_state.data = True
+>>>>>>> origin/neo
                 if self.heading_controller:
                     val.angular.z = self.angular_vel[i]
                 self.pubsub.publish(f'{namespace}/{self.robot_id_list[i]}/cmd_vel', val)

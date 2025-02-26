@@ -21,6 +21,7 @@ setup(
     entry_points={
         'console_scripts': [
             "heading_controller = controller.heading_controller:main",
+            "heading_decoder = controller.heading_decoder:main",
         ],
     },
 )
