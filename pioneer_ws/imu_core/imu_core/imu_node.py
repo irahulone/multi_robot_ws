@@ -21,8 +21,12 @@ class ReadImu(Node):
         self.robot_id = os.getenv("ROBOT_ID")
         self.username = os.getenv("USER")
         super().__init__(f'{self.robot_id}_imu')
-        
-        self.heading_offset = int(os.getenv("IMU_OFFSET"))
+
+        imu_offset = self.getenv("IMU_OFFSET")
+        if imu_offset is None:
+            self.heading_offset = 0
+        else:
+            self.heading_offset = int(os.getenv("IMU_OFFSET"))
 
         self.i2c = board.I2C()  # uses board.SCL and board.SDA
         # i2c = board.STEMMA_I2C()  # For using the built-in STEMMA QT connector on a microcontroller
