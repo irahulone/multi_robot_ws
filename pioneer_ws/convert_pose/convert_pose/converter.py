@@ -56,6 +56,7 @@ class PoseConverter(Node):
             self.get_logger().info('Service not available, waiting...')
         
         self.req = RefGPS.Request()
+        self.req.robot_id = self.robot_id
         self.future = self.cli.call_async(self.req)
         self.future.add_done_callback(self.srv_callback)
 

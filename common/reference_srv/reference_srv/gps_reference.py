@@ -8,11 +8,13 @@ class GPSReferenceServer(Node):
         self.ref_lon = -121.94158
         self.ref_lat = 37.35232
         self.srv = self.create_service(RefGPS, 'reference_gps', self.server_callback)
-        self.get_logger().info('GPS Refernce Point Server is ready.')
+        self.get_logger().info('GPS Reference Point Server is ready.')
 
     def server_callback(self, request, response):
+        robot_id = request.robot_id
         response.gps.longitude = self.ref_lon
         response.gps.latitude = self.ref_lat
+        self.get_logger().info(f'Reference GPS sent to {robot_id}')
         
         return response
 
