@@ -17,8 +17,8 @@ class PoseConverter(Node):
         self.robot_id = os.getenv("ROBOT_ID")
         super().__init__(f'{self.robot_id}_pose_converter')
         # Temporary values / Garage
-        self.ref_lat = -121.94158
-        self.ref_lon = 37.35232
+        self.ref_lon = -121.94158
+        self.ref_lat = 37.35232
         self.lat = None
         self.lon = None
         self.gps_status = None
