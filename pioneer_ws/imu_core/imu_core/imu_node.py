@@ -22,7 +22,7 @@ class ReadImu(Node):
         self.username = os.getenv("USER")
         super().__init__(f'{self.robot_id}_imu')
 
-        imu_offset = self.getenv("IMU_OFFSET")
+        imu_offset = os.getenv("IMU_OFFSET")
         if imu_offset is None:
             self.heading_offset = 0
         else:
