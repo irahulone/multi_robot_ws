@@ -1,0 +1,27 @@
+import rclpy
+from rclpy.node import Node
+from pioneer_interfaces.srv import RefGPS
+
+class GPSReferenceServer(Node):
+    def __init__(self):
+        super().__init__('gps_reference_serever')
+        self.ref_lat = -121.94158
+        self.ref_lon = 37.35232
+        self.srv = self.create_service(RefGPS, 'reference_gps', self.server_callback)
+        self.get_logger().info('GPS Refernce Point Server is ready.')
+
+    def server_callback(self, request, response):
+        response.gps.longitude = self.ref_lon
+        response.gps.latitude = self.ref_lat
+        
+        return response
+
+def main():
+    rclpy.init()
+    node = GPSReferenceServer()
+    rclpy.spin(node)
+    node.destroy_node()
+    rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()

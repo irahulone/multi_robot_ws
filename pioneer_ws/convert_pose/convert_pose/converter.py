@@ -7,6 +7,8 @@ from std_msgs.msg import Float32MultiArray
 from std_msgs.msg import Int16MultiArray
 from std_msgs.msg import Int16
 
+from pioneer_interfaces.srv import RefGPS
+
 import datetime
 import os
 from math import sin, cos, asin, atan2, sqrt, degrees, pi, radians
@@ -17,8 +19,10 @@ class PoseConverter(Node):
         self.robot_id = os.getenv("ROBOT_ID")
         super().__init__(f'{self.robot_id}_pose_converter')
         # Temporary values / Garage
-        self.ref_lat = -121.94158
-        self.ref_lon = 37.35232
+        #self.ref_lat = 37.35232
+        #self.ref_lon = -121.94158
+        self.ref_lat = None
+        self.ref_lon = None
         self.lat = None
         self.lon = None
         self.gps_status = None
@@ -45,8 +49,23 @@ class PoseConverter(Node):
             Pose2D,
             f'/{self.robot_id}/pose2D',
             5)
+        
+        self.cli = self.create_client(RefGPS, 'reference_gps')
+
+        while not self.cli.wait_for_service(timeout_sec=1.0):
+            self.get_logger().info('Service not available, waiting...')
+        
+        self.req = RefGPS.Request()
+        self.future = self.cli.call_async(self.req)
+        self.future.add_done_callback(self.srv_callback)
+
         timer_period = 1.0  # seconds
         self.timer = self.create_timer(timer_period, self.timer_callback)
+    
+    def srv_callback(self, future):
+        self.lat = future.result().gps.latitude
+        self.lon = future.result().gps.longitude
+        self.get_logger().info('Reference GPS received:')
         
     def gps_callback(self, msg):
         self.lat = msg.latitude
@@ -62,6 +81,9 @@ class PoseConverter(Node):
         self.euler_z = msg.data[2]
     
     def timer_callback(self):
+        if self.ref_lat is None or self.ref_lon is None:
+            self.get_logger().info("Reference GPS not set")
+            return
         if self.lat is None or self.lon is None or self.quaternion is None or self.euler_x is None:
             self.get_logger().info("Not all data available")
             return
