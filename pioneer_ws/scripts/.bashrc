@@ -124,4 +124,4 @@ alias rossource='cd $MY_ROS_WS && source install/setup.bash'
 
 # ROS PARAMS
 export ROBOT_ID=pX
-export IMU_OFFSET=210
+export IMU_OFFSET=0

@@ -1,15 +1,5 @@
 # pioneer_ws
 ## Setup
-### Install GPS and IMU drivers
-``` 
-$ sudo chmod +x install.sh
-$ ./install.sh
-```
-After running above, please enable I2C by raspi-config.
-```
-$ sudo raspi-config
-```
-
 ### Set ROBOT_ID
 Please set ROBOT_ID as environment variable.
 ``` 
@@ -26,6 +16,17 @@ Recommend adding to .bashrc
 $ echo "export ROBOT_ID=p2" >> ~/.bashrc
 ```
 
+### Install GPS and IMU drivers
+``` 
+$ sudo chmod +x install.sh
+$ ./install.sh
+```
+After running above, please enable I2C by raspi-config.
+```
+$ sudo raspi-config
+```
+
+
 ## Usage
 ### Joy Stick
 ```
@@ -39,7 +40,6 @@ LB: enable
 Role:       msg_name                    Type
 cmd_vel:    /{ROBOT_ID}/cmd_vel         geometry_msgs.msg.Twist
 ch_val:     /{ROBOT_ID}/ch_val          std_msgs.msg.Int32MultiArray
-enable:     /{ROBOT_ID}/enable          std_msgs.msg.Bool
 gps1:       /{ROBOT_ID}/gps1            sensor_msgs.msg.NavSatFix
 quaternion: /{ROBOT_ID}/imu/quaternion  geometry_msgs.msg.Quaternion
 eulerAngle: /{ROBOT_ID}/imu/eulerAngle  std_msgs.msg.Float32MultiArray
