@@ -36,5 +36,8 @@ EOF
 
 echo "Service file created at: $SERVICE_FILE"
 
+cd $WORK_DIR
+colcon build
+
 sudo systemctl enable ros2_start.service
 sudo systemctl start ros2_start.service
