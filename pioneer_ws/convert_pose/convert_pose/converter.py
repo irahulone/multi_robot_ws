@@ -63,8 +63,8 @@ class PoseConverter(Node):
         self.timer = self.create_timer(timer_period, self.timer_callback)
     
     def srv_callback(self, future):
-        self.lat = future.result().gps.latitude
-        self.lon = future.result().gps.longitude
+        self.ref_lat = future.result().gps.latitude
+        self.ref_lon = future.result().gps.longitude
         self.get_logger().info('Reference GPS received:')
         
     def gps_callback(self, msg):

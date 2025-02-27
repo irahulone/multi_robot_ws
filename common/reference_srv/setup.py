@@ -20,6 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'gps_reference_server = reference_srv.gps_reference:main',
         ],
     },
 )
