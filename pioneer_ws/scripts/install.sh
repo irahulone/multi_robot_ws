@@ -38,6 +38,7 @@ echo "Service file created at: $SERVICE_FILE"
 
 cd $WORK_DIR
 colcon build
+rm -rf pioneer_base sim
 
 sudo systemctl enable ros2_start.service
 sudo systemctl start ros2_start.service
