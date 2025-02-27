@@ -59,6 +59,7 @@ class PoseConverter(Node):
         self.req.robot_id = self.robot_id
         self.future = self.cli.call_async(self.req)
         self.future.add_done_callback(self.srv_callback)
+        self.get_logger().info(f'[{self.req.robot_id}]Sent request for reference GPS')
 
         timer_period = 1.0  # seconds
         self.timer = self.create_timer(timer_period, self.timer_callback)
